@@ -1,4 +1,4 @@
-name: Recovery Builder - ORRP Testing
+name: Recovery Builder - ORRP Testing 2
 
 # Credits to:
 # https://github.com/that1 for ldcheck and libneeds script
@@ -92,6 +92,7 @@ jobs:
         git clone https://gitlab.com/OrangeFox/misc/scripts
         cd scripts
         sudo bash setup/android_build_env.sh
+        cd ..
         mkdir OrangeFox
         cd OrangeFox
         git config --global user.name "Carlo Dandan"
@@ -99,6 +100,7 @@ jobs:
         git clone https://gitlab.com/OrangeFox/sync.git
         cd sync
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd ..
         cd ..
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ${{ github.event.inputs.DEVICE_PATH }}
