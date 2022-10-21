@@ -1,0 +1,145 @@
+name: Recovery Builder - ORRP Testing
+
+# Credits to:
+# https://github.com/that1 for ldcheck and libneeds script
+# https://github.com/TeamWin for QCom' Decryption Guide 
+# https://github.com/minimal-manifest-twrp for TWRP Manifest
+# https://github.com/azwhikaru for Recovery Builder Template
+# And all Contributors in every repositories I used
+
+on:
+  workflow_dispatch:
+    inputs:
+      MANIFEST_URL:
+        description: 'Manifest'
+        required: true
+        default: ''
+        type: choice
+        options:
+        - https://gitlab.com/OrangeFox/sync.git
+      MANIFEST_BRANCH:
+        description: 'Manifest Branch'
+        required: true
+        default: ''
+        type: choice
+        options:
+        - 12.1
+        - 11.0
+      DEVICE_TREE:
+        description: 'Custom Recovery Tree'
+        required: true
+        default: 'https://github.com/cd-Crypton/custom_recovery_tree_cannong'
+      DEVICE_TREE_BRANCH:
+        description: 'Custom Recovery Tree Branch'
+        required: true
+        default: 'orangefox-12.1'
+      DEVICE_PATH:
+        description: 'Specify your device path.'
+        required: true
+        default: 'device/xiaomi/cannong'
+      DEVICE_NAME:
+        description: 'Specify your Device Codename.'
+        required: true
+        default: 'cannong'
+      MAKEFILE_NAME:
+        description: 'Specify your twrp/omni_codename'
+        required: true
+        default: 'twrp_cannong'
+      BUILD_TARGET:
+        description: 'Specify your Build Target'
+        required: true
+        default: 'recovery'
+        type: choice
+        options:
+        - boot
+        - recovery
+        - vendor_boot
+      FILE_TO_CHECK:
+        description: 'Specify which libs to check'
+        required: true
+        default: 'system/bin/qseecomd'
+
+jobs:
+  build:
+    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Check Out
+      uses: actions/checkout@v3.1.0
+
+    - name: Cleanup
+      uses: rokibhasansagar/slimhub_actions@main
+      
+    - name: Prepare the environment
+      run: |
+        sudo apt update
+        sudo apt -y upgrade
+        sudo apt -y install git aria2
+
+    - name: Install OpenJDK
+      uses: actions/setup-java@v3.5.1
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+      
+    - name: Run OFRP Scripts
+      run: |
+        git clone https://gitlab.com/OrangeFox/misc/scripts
+        cd scripts
+        sudo bash setup/android_build_env.sh
+        sudo bash setup/install_android_sdk.sh
+      continue-on-error: true
+      
+    - name: Clone Sync Script
+      run: |
+        mkdir OrangeFox
+        cd OrangeFox
+        echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
+        git config --global user.name "Carlo Dandan"
+        git config --global user.email "jasminecarlo01@gmail.com"
+        git clone https://gitlab.com/OrangeFox/sync.git
+      id: pwd
+
+    - name: Sync OFRP Sources
+      run: |
+        cd sync
+        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox
+      working-directory: OrangeFox
+      continue-on-error: true
+
+    - name: Clone Device Tree
+      run: |
+        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ${{ github.event.inputs.DEVICE_PATH }}
+      working-directory: ${{ steps.pwd.outputs.workdir }}
+
+    - name: Set Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 12
+
+    - name: Building Custom Recovery
+      run: |
+        source build/envsetup.sh
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+        export LC_ALL="C"
+        lunch twrp_cannong-eng && mka adbd recoveryimage
+      working-directory: ${{ steps.pwd.outputs.workdir }}
+      
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
+        name: unofficial-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.BUILD_TARGET }}-${{ github.run_id }}
+        tag_name: ${{ github.run_id }}
+        body: |
+          Manifest: ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+          Device: unofficial-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}.img
+
+    - name: Run LDCheck
+      run: |
+        cd workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root
+        python3 ldcheck -p system/lib64:vendor/lib64 -d ${{ github.event.inputs.FILE_TO_CHECK }}
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
