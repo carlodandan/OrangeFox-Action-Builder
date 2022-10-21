@@ -123,7 +123,7 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
-        lunch twrp_cannong-eng && mka adbd recoveryimage
+        lunch
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Upload to Release
