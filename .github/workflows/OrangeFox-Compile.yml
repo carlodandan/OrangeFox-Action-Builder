@@ -28,11 +28,11 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
-        default: 'https://github.com/cd-Crypton/custom_recovery_tree_cannong'
+        default: 'https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'orangefox-12.1'
+        default: 'android-12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
@@ -114,8 +114,8 @@ jobs:
       
     - name: Clone Sync Script
       run: |
-        mkdir OrangeFoxSync
-        cd OrangeFoxSync
+        mkdir fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Carlo Dandan"
         git config --global user.email "jasminecarlo01@gmail.com"
@@ -125,7 +125,7 @@ jobs:
     - name: Sync OFRP Sources
       run: |
         cd sync
-        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFoxSync
+        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: OrangeFoxSync
       continue-on-error: true
 
@@ -142,16 +142,13 @@ jobs:
     - name: Building Custom Recovery
       run: |
         source build/envsetup.sh
-        export ALLOW_MISSING_DEPENDENCIES=true
-        export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
-        export LC_ALL="C"
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
-        files: workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
+        files: fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
         name: unofficial-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.BUILD_TARGET }}-${{ github.run_id }}
         tag_name: ${{ github.run_id }}
         body: |
