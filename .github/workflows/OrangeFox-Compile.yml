@@ -126,7 +126,7 @@ jobs:
       run: |
         cd sync
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-      working-directory: OrangeFoxSync
+      working-directory: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       continue-on-error: true
 
     - name: Clone Device Tree
