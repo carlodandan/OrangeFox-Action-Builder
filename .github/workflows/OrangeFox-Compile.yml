@@ -74,14 +74,21 @@ jobs:
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt -y install git aria2
+        sudo apt -y install git aria2 checkpolicy gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib lib32z1 libc6-dev libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc ccache lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev libxml2 lzop pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev python2.7
 
     - name: Install OpenJDK
       uses: actions/setup-java@v3.5.1
       with:
         distribution: 'zulu'
         java-version: '8'
-      
+        
+    - name: Install repo
+      run: |
+        mkdir ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
+        
     - name: Run OFRP Scripts
       run: |
         git clone https://gitlab.com/OrangeFox/misc/scripts
