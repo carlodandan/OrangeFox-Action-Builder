@@ -130,6 +130,7 @@ jobs:
     - name: Building Custom Recovery
       run: |
         source build/envsetup.sh
+        hmm
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
