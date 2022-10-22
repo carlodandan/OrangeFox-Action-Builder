@@ -2,8 +2,8 @@ name: Recovery Builder - Final
 
 # Credits to:
 # https://github.com/that1 for ldcheck and libneeds script
-# https://github.com/TeamWin for QCom' Decryption Guide 
-# https://github.com/minimal-manifest-twrp for TWRP Manifest
+# https://github.com/TeamWin
+# https://gitlab.com/OrangeFox
 # https://github.com/azwhikaru for Recovery Builder Template
 # And all Contributors in every repositories I used
 
@@ -152,8 +152,9 @@ jobs:
         name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }}
         tag_name: ${{ github.run_id }}
         body: |
-          Manifest: ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
-          Device: unofficial-fox_${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}.img
+          Manifest: ${{ github.event.inputs.MANIFEST_URL }}
+          Branch: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+          Device: ${{ github.event.inputs.DEVICE_NAME }}
 
     - name: Run LDCheck
       run: |
