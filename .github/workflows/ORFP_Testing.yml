@@ -89,7 +89,9 @@ jobs:
       
     - name: Run Everything
       run: |
-        cd ~
+        cd ..
+        cd ..
+        cd ..
         git config --global user.name "Carlo Dandan"
         git config --global user.email "jasminecarlo01@gmail.com"
         git clone https://gitlab.com/OrangeFox/misc/scripts
