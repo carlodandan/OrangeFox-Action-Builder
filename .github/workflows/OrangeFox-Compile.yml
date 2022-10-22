@@ -1,4 +1,4 @@
-name: Recovery Builder - ORRP Testing
+name: Recovery Builder - Final
 
 # Credits to:
 # https://github.com/that1 for ldcheck and libneeds script
@@ -20,7 +20,7 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: ''
+        default: '10.0'
         type: choice
         options:
         - 12.1
@@ -34,7 +34,7 @@ on:
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'fox_12.1'
+        default: 'fox_12.1-omni'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
@@ -46,7 +46,7 @@ on:
       MAKEFILE_NAME:
         description: 'Specify your twrp/omni_codename'
         required: true
-        default: 'twrp_cannong'
+        default: 'omni_cannong'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
