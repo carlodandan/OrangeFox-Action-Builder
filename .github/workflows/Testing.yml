@@ -99,7 +99,7 @@ jobs:
         cd OrangeFox
         git clone https://gitlab.com/OrangeFox/sync.git
         cd sync
-        sudo bash orangefox_synca.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        sudo bash orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         cd ..
         cd ..
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
