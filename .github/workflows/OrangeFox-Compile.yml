@@ -18,7 +18,7 @@ on:
         options:
         - https://gitlab.com/OrangeFox/sync.git
       MANIFEST_BRANCH:
-        description: 'Manifest Branch'
+        description: 'OrangeFox Branch'
         required: true
         default: ''
         type: choice
@@ -71,6 +71,11 @@ jobs:
 
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
+
+    - name: Set Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 10
       
     - name: Prepare the environment
       run: |
@@ -105,14 +110,6 @@ jobs:
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
         chmod a+x ~/bin/repo
         sudo ln -sf ~/bin/repo /usr/bin/repo
-        
-#    - name: Run OFRP Scripts
-#      run: |
-#        git clone https://gitlab.com/OrangeFox/misc/scripts
-#        cd scripts
-#        sudo bash setup/android_build_env.sh
-#        sudo bash setup/install_android_sdk.sh
-#      continue-on-error: true
       
     - name: Clone Sync Script
       run: |
@@ -136,10 +133,6 @@ jobs:
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
 
-    - name: Set Swap Space
-      uses: pierotofy/set-swap-space@master
-      with:
-        swap-size-gb: 12
 
     - name: Building Custom Recovery
       run: |
