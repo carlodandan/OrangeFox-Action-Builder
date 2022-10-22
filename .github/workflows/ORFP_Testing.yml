@@ -13,7 +13,7 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: ''
+        default: '11.0'
         type: choice
         options:
         - 12.1
@@ -23,23 +23,23 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
-        default: 'https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong'
+        default: 'https://github.com/OrangeFoxRecovery/device_samsung_sdm439'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'fox_12.1'
+        default: 'fox_10.0'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
-        default: 'device/xiaomi/cannong'
+        default: 'device/samsung/sdm439'
       DEVICE_NAME:
         description: 'Specify your Device Codename.'
         required: true
-        default: 'cannong'
+        default: 'sdm439'
       MAKEFILE_NAME:
         description: 'Specify your twrp/omni_codename'
         required: true
-        default: 'twrp_cannong'
+        default: 'omni_sdm439'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
@@ -136,12 +136,16 @@ jobs:
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
-        files: fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
-        name: unofficial-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.BUILD_TARGET }}-${{ github.run_id }}
+        files: |
+          fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img
+          fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img.md5
+          fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip
+          fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip.md5
+        name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }}
         tag_name: ${{ github.run_id }}
         body: |
           Manifest: ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
-          Device: unofficial-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}.img
+          Device: unofficial-fox_${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}.img
 
     - name: Run LDCheck
       run: |
