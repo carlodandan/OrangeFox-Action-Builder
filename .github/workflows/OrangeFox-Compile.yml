@@ -34,7 +34,7 @@ on:
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'android-12.1'
+        default: 'fox_12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
