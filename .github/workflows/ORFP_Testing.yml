@@ -1,11 +1,4 @@
-name: Recovery Builder - ORRP Testing 3
-
-# Credits to:
-# https://github.com/that1 for ldcheck and libneeds script
-# https://github.com/TeamWin for QCom' Decryption Guide 
-# https://github.com/minimal-manifest-twrp for TWRP Manifest
-# https://github.com/azwhikaru for Recovery Builder Template
-# And all Contributors in every repositories I used
+name: Testing
 
 on:
   workflow_dispatch:
@@ -18,21 +11,23 @@ on:
         options:
         - https://gitlab.com/OrangeFox/sync.git
       MANIFEST_BRANCH:
-        description: 'Manifest Branch'
+        description: 'OrangeFox Branch'
         required: true
         default: ''
         type: choice
         options:
         - 12.1
         - 11.0
+        - 10.0
+        - 9.0
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
-        default: 'https://github.com/cd-Crypton/custom_recovery_tree_cannong'
+        default: 'https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'orangefox-12.1'
+        default: 'fox_12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
@@ -69,12 +64,32 @@ jobs:
 
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
+
+    - name: Set Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 10
       
     - name: Prepare the environment
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt -y install git aria2
+        sudo apt -y install make git aria2 libncurses5 curl python-is-python3 adb autoconf automake axel bc bison build-essential ccache clang cmake curl expat fastboot flex g++ g++-multilib gawk gcc gcc-multilib git gnupg gperf htop imagemagick lib32ncurses5-dev lib32z1-dev libtinfo5 libc6-dev libcap-dev libexpat1-dev libgmp-dev '^liblz4-.*' '^liblzma.*' libmpc-dev libmpfr-dev libncurses5-dev libsdl1.2-dev libssl-dev libtool libxml2 libxml2-utils '^lzma.*' lzop maven ncftp ncurses-dev patch patchelf pkg-config pngcrush pngquant python2.7 python-all-dev re2c schedtool squashfs-tools subversion texinfo unzip w3m xsltproc zip zlib1g-dev lzip libxml-simple-perl libswitch-perl apt-utils 
+       
+    - name: Install Github Cli
+      run: |
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+        sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+        sudo apt update
+        sudo apt install -y gh
+
+    - name: ADB Rules
+      run: |
+        sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/M0Rf30/android-udev-rules/master/51-android.rules
+        sudo chmod 644 /etc/udev/rules.d/51-android.rules
+        sudo chown root /etc/udev/rules.d/51-android.rules
+        sudo systemctl restart udev
 
     - name: Install OpenJDK
       uses: actions/setup-java@v3.5.1
@@ -82,38 +97,46 @@ jobs:
         distribution: 'zulu'
         java-version: '8'
         
-    - name: Set Swap Space
-      uses: pierotofy/set-swap-space@master
-      with:
-        swap-size-gb: 12
-      
-    - name: Run Everything
+    - name: Install repo
       run: |
-        cd ..
-        cd ..
-        cd ..
+        mkdir ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
+      
+    - name: Clone Sync Script
+      run: |
+        mkdir fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Carlo Dandan"
         git config --global user.email "jasminecarlo01@gmail.com"
-        git clone https://gitlab.com/OrangeFox/misc/scripts
-        cd scripts
-        sudo bash setup/android_build_env.sh
-        cd ..
-        mkdir OrangeFox
-        cd OrangeFox
         git clone https://gitlab.com/OrangeFox/sync.git
+      id: pwd
+
+    - name: Sync OFRP Sources
+      run: |
         cd sync
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        cd ..
-        cd ..
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ${{ github.event.inputs.DEVICE_PATH }}
+      working-directory: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+      continue-on-error: true
+
+    - name: Clone Device Tree
+      run: |
+        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
+      working-directory: ${{ steps.pwd.outputs.workdir }}
+
+
+    - name: Building Custom Recovery
+      run: |
         source build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
-
+      working-directory: ${{ steps.pwd.outputs.workdir }}
+      
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ~/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip
+        files: fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
         name: unofficial-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.BUILD_TARGET }}-${{ github.run_id }}
         tag_name: ${{ github.run_id }}
         body: |
