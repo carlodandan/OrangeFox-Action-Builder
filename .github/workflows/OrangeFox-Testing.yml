@@ -100,8 +100,8 @@ jobs:
       
     - name: Clone Sync Script
       run: |
-        mkdir fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        mkdir OrangeFox
+        cd OrangeFox
         echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Carlo Dandan"
         git config --global user.email "jasminecarlo01@gmail.com"
@@ -111,32 +111,27 @@ jobs:
     - name: Sync OFRP Sources
       run: |
         cd sync
-        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-      working-directory: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+      working-directory: OrangeFox
       continue-on-error: true
 
     - name: Clone Device Tree
       run: |
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
 
     - name: Re-Sync Sources
       run: |
-        cd bootable/recovery
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}/bootable/recovery
         git pull --recurse-submodules
         git submodule foreach --recursive git pull origin master
-        cd ..
-        git clone https://gitlab.com/OrangeFox/vendor/recovery.git ./vendor/recovery
-        cd vendor/recovery
-        git pull
       working-directory: ${{ steps.pwd.outputs.workdir }}
       continue-on-error: true
 
     - name: Building Custom Recovery
       run: |
-        cd build
-        patch -p1 < patch-manifest-fox_12.1.diff
-        cd ..
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         source build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
@@ -145,8 +140,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img
-          fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip
+          OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img
+          OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip
         name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }}
         tag_name: ${{ github.run_id }}
         body: |
