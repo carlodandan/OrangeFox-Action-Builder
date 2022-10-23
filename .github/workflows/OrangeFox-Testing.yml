@@ -122,7 +122,6 @@ jobs:
 
     - name: Re-Sync Sources
       run: |
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}/
         repo sync
       working-directory: ${{ steps.pwd.outputs.workdir }}
       continue-on-error: true
