@@ -13,7 +13,7 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: '11.0'
+        default: '12.1'
         type: choice
         options:
         - 12.1
@@ -39,7 +39,7 @@ on:
       MAKEFILE_NAME:
         description: 'Specify your twrp/omni_codename'
         required: true
-        default: 'cannong'
+        default: 'twrp_cannong'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
