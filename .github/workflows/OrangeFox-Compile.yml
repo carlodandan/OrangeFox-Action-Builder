@@ -1,7 +1,6 @@
 name: Recovery Builder - Final
 
 # Credits to:
-# https://github.com/that1 for ldcheck and libneeds script
 # https://github.com/TeamWin
 # https://gitlab.com/OrangeFox
 # https://github.com/azwhikaru for Recovery Builder Template
@@ -71,65 +70,51 @@ jobs:
       with:
         swap-size-gb: 10
       
-    - name: Prepare the environment
+    - name: Initial Package
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt -y install make git aria2 libncurses5 curl python-is-python3 adb autoconf automake axel bc bison build-essential ccache clang cmake curl expat fastboot flex g++ g++-multilib gawk gcc gcc-multilib git gnupg gperf htop imagemagick lib32ncurses5-dev lib32z1-dev libtinfo5 libc6-dev libcap-dev libexpat1-dev libgmp-dev '^liblz4-.*' '^liblzma.*' libmpc-dev libmpfr-dev libncurses5-dev libsdl1.2-dev libssl-dev libtool libxml2 libxml2-utils '^lzma.*' lzop maven ncftp ncurses-dev patch patchelf pkg-config pngcrush pngquant python2.7 python-all-dev re2c schedtool squashfs-tools subversion texinfo unzip w3m xsltproc zip zlib1g-dev lzip libxml-simple-perl libswitch-perl apt-utils 
-       
-    - name: Install Github Cli
-      run: |
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-        sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        sudo apt update
-        sudo apt install -y gh
+        sudo apt -y install git aria2 
 
-    - name: ADB Rules
+    - name: Necessary Package
       run: |
-        sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/M0Rf30/android-udev-rules/master/51-android.rules
-        sudo chmod 644 /etc/udev/rules.d/51-android.rules
-        sudo chown root /etc/udev/rules.d/51-android.rules
-        sudo systemctl restart udev
-
+        git clone https://gitlab.com/OrangeFox/misc/scripts
+        cd scripts
+        sudo bash setup/android_build_env.sh
+        
     - name: Install OpenJDK
       uses: actions/setup-java@v3.5.1
       with:
         distribution: 'zulu'
         java-version: '8'
-        
-    - name: Install repo
-      run: |
-        mkdir ~/bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        chmod a+x ~/bin/repo
-        sudo ln -sf ~/bin/repo /usr/bin/repo
       
-    - name: Clone Sync Script
+    - name: Set-up Manifest
       run: |
-        mkdir fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        mkdir OrangeFox
+        cd OrangeFox
         echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Carlo Dandan"
         git config --global user.email "jasminecarlo01@gmail.com"
         git clone https://gitlab.com/OrangeFox/sync.git
       id: pwd
 
-    - name: Sync OFRP Sources
+    - name: Sync Manifest
       run: |
         cd sync
-        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-      working-directory: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+      working-directory: OrangeFox
       continue-on-error: true
 
     - name: Clone Device Tree
       run: |
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
 
 
     - name: Building OrangeFox
       run: |
+        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
