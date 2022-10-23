@@ -146,7 +146,7 @@ jobs:
       run: |
         PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        source build/envsetup.sh
+        source ./build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
