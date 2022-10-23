@@ -129,12 +129,14 @@ jobs:
         git clone https://gitlab.com/OrangeFox/vendor/recovery.git ./vendor/recovery
         cd vendor/recovery
         git pull
-        ./OrangeFox_A12.sh
       working-directory: ${{ steps.pwd.outputs.workdir }}
       continue-on-error: true
 
     - name: Building Custom Recovery
       run: |
+        cd build
+        patch -p1 < patch-manifest-fox_12.1.diff
+        cd ..
         source build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
