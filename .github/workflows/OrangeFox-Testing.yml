@@ -133,15 +133,6 @@ jobs:
       working-directory: ${{ steps.pwd.outputs.workdir }}
       continue-on-error: true
 
-    - name: Re-run Build Env Script
-      run: |
-        PATH=~/bin:$PATH
-        git clone https://gitlab.com/OrangeFox/misc/scripts
-        cd scripts
-        sudo bash setup/android_build_env.sh
-        sudo bash setup/install_android_sdk.sh
-      continue-on-error: true
-
     - name: Building Custom Recovery
       run: |
         PATH=~/bin:$PATH
