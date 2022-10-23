@@ -72,8 +72,10 @@ jobs:
       
     - name: Prepare the environment
       run: |
+        sudo apt install software-properties-common lsb-core -y
         sudo apt update
         sudo apt -y upgrade
+        sudo DEBIAN_FRONTEND=noninteractive
         sudo apt -y install make git aria2 libncurses5 curl python-is-python3 adb autoconf automake axel bc bison build-essential ccache clang cmake curl expat fastboot flex g++ g++-multilib gawk gcc gcc-multilib git gnupg gperf htop imagemagick lib32ncurses5-dev lib32z1-dev libtinfo5 libc6-dev libcap-dev libexpat1-dev libgmp-dev '^liblz4-.*' '^liblzma.*' libmpc-dev libmpfr-dev libncurses5-dev libsdl1.2-dev libssl-dev libtool libxml2 libxml2-utils '^lzma.*' lzop maven ncftp ncurses-dev patch patchelf pkg-config pngcrush pngquant python2.7 python-all-dev re2c schedtool squashfs-tools subversion texinfo unzip w3m xsltproc zip zlib1g-dev lzip libxml-simple-perl libswitch-perl apt-utils 
        
     - name: Install Github Cli
