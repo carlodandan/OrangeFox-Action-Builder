@@ -49,10 +49,6 @@ on:
         - boot
         - recovery
         - vendor_boot
-      FILE_TO_CHECK:
-        description: 'Specify which libs to check'
-        required: true
-        default: 'system/bin/qseecomd'
 
 jobs:
   build:
@@ -72,7 +68,6 @@ jobs:
       
     - name: Prepare the environment
       run: |
-        sudo apt install software-properties-common lsb-core -y
         sudo apt update
         sudo apt -y upgrade
         sudo DEBIAN_FRONTEND=noninteractive
