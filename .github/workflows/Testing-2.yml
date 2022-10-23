@@ -68,7 +68,7 @@ jobs:
       
     - name: Prepare the environment
       run: |
-        curl -L https://github.com/ghostrider-reborn/scripts/raw/master/script-name.sh | bash
+        git clone https://github.com/ghostrider-reborn/scripts.git && cd scripts && chmod a+x ubuntu-setup.sh && sudo ./ubuntu-setup.sh && cd ..
 
     - name: Install OpenJDK
       uses: actions/setup-java@v3.5.1
