@@ -100,6 +100,7 @@ jobs:
       
     - name: Clone Sync Script
       run: |
+        PATH=~/bin:$PATH
         mkdir OrangeFox
         cd OrangeFox
         echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
@@ -110,6 +111,7 @@ jobs:
 
     - name: Sync OFRP Sources
       run: |
+        PATH=~/bin:$PATH
         cd sync
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: OrangeFox
@@ -117,12 +119,14 @@ jobs:
 
     - name: Clone Device Tree
       run: |
+        PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
 
     - name: Re-Sync Sources
       run: |
+        PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}/bootable/recovery
         git pull --recurse-submodules
         git submodule foreach --recursive git pull origin master
@@ -131,6 +135,7 @@ jobs:
 
     - name: Building Custom Recovery
       run: |
+        PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         source build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
