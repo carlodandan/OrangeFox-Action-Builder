@@ -129,6 +129,7 @@ jobs:
         git clone https://gitlab.com/OrangeFox/vendor/recovery.git ./vendor/recovery
         cd vendor/recovery
         git pull
+        ./OrangeFox_A12.sh
       working-directory: ${{ steps.pwd.outputs.workdir }}
       continue-on-error: true
 
