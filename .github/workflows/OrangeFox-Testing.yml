@@ -117,7 +117,7 @@ jobs:
     - name: Sync OFRP Sources
       run: |
         cd sync
-        ./orangefox_sync.sh --branch 10.0 --path ${GITHUB_WORKSPACE}/fox_10.0
+        ./orangefox_sync.sh --branch 10.0 --path ${GITHUB_WORKSPACE}/fox_12.1
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       continue-on-error: true
