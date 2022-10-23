@@ -122,6 +122,13 @@ jobs:
 
     - name: Re-Sync Sources
       run: |
+        cd bootable/recovery
+        git pull --recurse-submodules
+        git submodule foreach --recursive git pull origin master
+        cd ..
+        cd vendor/recovery
+        git pull
+        cd ..
         repo sync
       working-directory: ${{ steps.pwd.outputs.workdir }}
       continue-on-error: true
