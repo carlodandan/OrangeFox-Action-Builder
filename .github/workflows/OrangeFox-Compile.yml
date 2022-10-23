@@ -1,4 +1,4 @@
-name: Recovery Builder - Final
+name: OrangeFox_10.0 - Final
 
 # Credits to:
 # https://github.com/TeamWin
@@ -31,7 +31,7 @@ on:
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'android-12.1'
+        default: 'fox_12.1-omni'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
@@ -43,7 +43,7 @@ on:
       MAKEFILE_NAME:
         description: 'Specify your twrp/omni_codename'
         required: true
-        default: 'twrp_cannong'
+        default: 'omni_cannong'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
