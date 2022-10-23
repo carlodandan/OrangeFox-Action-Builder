@@ -99,10 +99,8 @@ jobs:
         
     - name: Install repo
       run: |
-        mkdir ~/bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        chmod a+x ~/bin/repo
-        sudo ln -sf ~/bin/repo /usr/bin/repo
+        sudo curl --create-dirs -L -o /usr/local/bin/repo -O -L https://storage.googleapis.com/git-repo-downloads/repo
+        sudo chmod a+rx /usr/local/bin/repo
       
     - name: Clone Sync Script
       run: |
@@ -117,7 +115,6 @@ jobs:
     - name: Sync OFRP Sources
       run: |
         cd sync
-        ./orangefox_sync.sh --branch 10.0 --path ${GITHUB_WORKSPACE}/fox_12.1
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       continue-on-error: true
@@ -131,7 +128,6 @@ jobs:
     - name: Building Custom Recovery
       run: |
         source build/envsetup.sh
-        hmm
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
@@ -146,11 +142,5 @@ jobs:
         body: |
           Manifest: ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
           Device: unofficial-fox_${{ github.event.inputs.MANIFEST_BRANCH }}-${{ github.event.inputs.DEVICE_NAME }}.img
-
-    - name: Run LDCheck
-      run: |
-        cd workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root
-        python3 ldcheck -p system/lib64:vendor/lib64 -d ${{ github.event.inputs.FILE_TO_CHECK }}
-      continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
