@@ -20,7 +20,7 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: '10.0'
+        default: '12.1'
         type: choice
         options:
         - 12.1
@@ -34,7 +34,7 @@ on:
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'fox_12.1-omni'
+        default: 'android-12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
@@ -46,7 +46,7 @@ on:
       MAKEFILE_NAME:
         description: 'Specify your twrp/omni_codename'
         required: true
-        default: 'omni_cannong'
+        default: 'twrp_cannong'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
@@ -56,10 +56,6 @@ on:
         - boot
         - recovery
         - vendor_boot
-      FILE_TO_CHECK:
-        description: 'Specify which libs to check'
-        required: true
-        default: 'system/bin/qseecomd'
 
 jobs:
   build:
@@ -155,11 +151,5 @@ jobs:
           Manifest: ${{ github.event.inputs.MANIFEST_URL }}
           Branch: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
           Device: ${{ github.event.inputs.DEVICE_NAME }}
-
-    - name: Run LDCheck
-      run: |
-        cd workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery/root
-        python3 ldcheck -p system/lib64:vendor/lib64 -d ${{ github.event.inputs.FILE_TO_CHECK }}
-      continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
