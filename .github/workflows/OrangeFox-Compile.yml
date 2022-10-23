@@ -20,11 +20,9 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: '12.1'
+        default: '10'
         type: choice
         options:
-        - 12.1
-        - 11.0
         - 10.0
         - 9.0
       DEVICE_TREE:
@@ -136,7 +134,7 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
-        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Upload to Release
