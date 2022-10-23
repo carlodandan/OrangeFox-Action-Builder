@@ -61,10 +61,10 @@ jobs:
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
 
-    - name: Set Swap Space
-      uses: pierotofy/set-swap-space@master
-      with:
-        swap-size-gb: 10
+#    - name: Set Swap Space
+#      uses: pierotofy/set-swap-space@master
+#      with:
+#        swap-size-gb: 10
       
     - name: Prepare the environment
       run: |
@@ -141,7 +141,10 @@ jobs:
         PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         source ./build/envsetup.sh
+        m help
+        hmm
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        echo "Done..."
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Upload to Release
