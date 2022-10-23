@@ -23,23 +23,23 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
-        default: 'https://github.com/OrangeFoxRecovery/device_samsung_sdm439'
+        default: 'https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'fox_10.0'
+        default: 'fox_12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
-        default: 'device/samsung/sdm439'
+        default: 'device/xiaomi/cannong'
       DEVICE_NAME:
         description: 'Specify your Device Codename.'
         required: true
-        default: 'sdm439'
+        default: 'cannong'
       MAKEFILE_NAME:
         description: 'Specify your twrp/omni_codename'
         required: true
-        default: 'omni_sdm439'
+        default: 'cannong'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
