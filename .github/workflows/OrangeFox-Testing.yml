@@ -95,8 +95,11 @@ jobs:
         
     - name: Install repo
       run: |
-        sudo curl --create-dirs -L -o /usr/local/bin/repo -O -L https://storage.googleapis.com/git-repo-downloads/repo
-        sudo chmod a+rx /usr/local/bin/repo
+        mkdir ~/bin
+        PATH=~/bin:$PATH
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
       
     - name: Clone Sync Script
       run: |
