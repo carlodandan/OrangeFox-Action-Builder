@@ -23,6 +23,7 @@ jobs:
           command: |
             mkdir ~/OrangeFox && cd ~/OrangeFox
             git clone https://github.com/cd-Spidey/OrangeFox-Action-Builder ./Sync
+            chmod a+x ~/OrangeFox/Sync/sync/orangefox_sync.sh
             cd ~/OrangeFox/Sync/sync
             yes | ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
       - run: 
