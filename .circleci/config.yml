@@ -7,20 +7,20 @@ jobs:
     resource_class: xlarge
       
     steps: 
-      - Initial Packages
+      - run: echo "Initial Packages"
       - run: cd ~
       - run: sudo apt install git aria2 -y
-      - Necessary Packages
+      - run: echo "Necessary Packages"
       - run: git clone https://gitlab.com/OrangeFox/misc/scripts && cd scripts
       - run: sudo bash setup/android_build_env.sh
-      - Sync Sources
+      - run: echo "Sync Sources"
       - run: mkdir ~/OrangeFox && cd ~/OrangeFox
       - run: git clone https://gitlab.com/OrangeFox/sync.git && cd ~/OrangeFox/sync
       - run: ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
-      - Clone Device Tree
+      - run: echo "Clone Device Tree"
       - cd ~/fox_12.1
       - run: git clone https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong ./device/xiaomi/cannong
-      - Build OrangeFox
+      - run: echo "Build OrangeFox"
       - run: cd ~/fox_12.1
       - run: source ./build/envsetup.sh
       - run: export ALLOW_MISSING_DEPENDENCIES=true
