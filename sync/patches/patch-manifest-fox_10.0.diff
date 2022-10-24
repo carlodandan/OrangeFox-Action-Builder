@@ -1,0 +1,168 @@
+diff --git a/core/Makefile b/core/Makefile
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -1932,7 +1932,33 @@ define build-recoveryramdisk
+   # Copying baseline ramdisk...
+   # Use rsync because "cp -Rf" fails to overwrite broken symlinks on Mac.
+   $(hide) rsync -a --exclude=sdcard $(IGNORE_RECOVERY_SEPOLICY) $(IGNORE_CACHE_LINK) $(TARGET_ROOT_OUT) $(TARGET_RECOVERY_OUT)
++
+   # Modifying ramdisk contents...
++
++# Darth9
++#ifneq ($(NOT_ORANGEFOX),1)
++ 	$(if $(filter 1,$(FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER)), \
++  	$(hide) $(FOX_VENDOR) \
++  	FOX_VENDOR_CMD="Fox_Before_Recovery_Image" \
++  	FOX_MANIFEST_VER="10.0" \
++  	TARGET_ARCH="$(TARGET_ARCH)" \
++	TARGET_RECOVERY_ROOT_OUT="$(TARGET_RECOVERY_ROOT_OUT)" \
++	MKBOOTIMG="$(MKBOOTIMG)" \
++	MKBOOTFS="$(MKBOOTFS)" \
++	INTERNAL_RECOVERYIMAGE_ARGS='"$(INTERNAL_RECOVERYIMAGE_ARGS)"' \
++	INTERNAL_MKBOOTIMG_VERSION_ARGS="$(INTERNAL_MKBOOTIMG_VERSION_ARGS)" \
++	BOARD_MKBOOTIMG_ARGS='"$(BOARD_MKBOOTIMG_ARGS)"' \
++	TARGET_OUT="$(TARGET_OUT)" \
++  	RECOVERY_RAMDISK_COMPRESSOR="$(RECOVERY_RAMDISK_COMPRESSOR)" \
++  	INSTALLED_RECOVERYIMAGE_TARGET="$(INSTALLED_RECOVERYIMAGE_TARGET)" \
++  	BOARD_BOOTIMAGE_PARTITION_SIZE=$(BOARD_BOOTIMAGE_PARTITION_SIZE) \
++  	BOARD_RECOVERYIMAGE_PARTITION_SIZE=$(BOARD_RECOVERYIMAGE_PARTITION_SIZE) \
++  	INTERNAL_KERNEL_CMDLINE="$(INTERNAL_KERNEL_CMDLINE)" \
++  	recovery_ramdisk="$(recovery_ramdisk)" \
++  	recovery_uncompressed_ramdisk="$(recovery_uncompressed_ramdisk)")
++#endif
++# Darth9
++
+   $(if $(filter true,$(BOARD_BUILD_SYSTEM_ROOT_IMAGE)),, \
+     $(hide) ln -sf /system/bin/init $(TARGET_RECOVERY_ROOT_OUT)/init)
+   $(if $(BOARD_RECOVERY_KERNEL_MODULES), \
+@@ -2024,6 +2050,31 @@ $(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTFS) $(MKBOOTIMG) $(MINIGZIP) \
+ 	$(call build-recoveryramdisk)
+ 	$(hide) $(MKBOOTFS) -d $(TARGET_OUT) $(TARGET_RECOVERY_ROOT_OUT) | $(RECOVERY_RAMDISK_COMPRESSOR) > $(recovery_ramdisk)
+ 	$(call build-recoveryimage-target, $@)
++
++# Darth9
++ifneq ($(NOT_ORANGEFOX),1)
++	$(BASH) $(FOX_VENDOR) FOX_VENDOR_CMD="Fox_After_Recovery_Image" \
++  	FOX_MANIFEST_VER="10.0" \
++  	BOARD_BOOT_HEADER_VERSION="$(BOARD_BOOT_HEADER_VERSION)" \
++  	TARGET_ARCH="$(TARGET_ARCH)" \
++	TARGET_RECOVERY_ROOT_OUT="$(TARGET_RECOVERY_ROOT_OUT)" \
++	MKBOOTIMG="$(MKBOOTIMG)" \
++	MKBOOTFS="$(MKBOOTFS)" \
++	INTERNAL_RECOVERYIMAGE_ARGS='"$(INTERNAL_RECOVERYIMAGE_ARGS)"' \
++	INTERNAL_MKBOOTIMG_VERSION_ARGS="$(INTERNAL_MKBOOTIMG_VERSION_ARGS)" \
++	BOARD_MKBOOTIMG_ARGS='"$(BOARD_MKBOOTIMG_ARGS)"' \
++	TARGET_OUT="$(TARGET_OUT)" \
++  	RECOVERY_RAMDISK_COMPRESSOR="$(RECOVERY_RAMDISK_COMPRESSOR)" \
++  	INSTALLED_RECOVERYIMAGE_TARGET="$(INSTALLED_RECOVERYIMAGE_TARGET)" \
++  	INSTALLED_BOOTIMAGE_TARGET="$(INSTALLED_BOOTIMAGE_TARGET)" \
++  	BOARD_BOOTIMAGE_PARTITION_SIZE=$(BOARD_BOOTIMAGE_PARTITION_SIZE) \
++  	BOARD_RECOVERYIMAGE_PARTITION_SIZE=$(BOARD_RECOVERYIMAGE_PARTITION_SIZE) \
++  	BOARD_USES_RECOVERY_AS_BOOT=$(BOARD_USES_RECOVERY_AS_BOOT) \
++  	INTERNAL_KERNEL_CMDLINE="$(INTERNAL_KERNEL_CMDLINE)" \
++  	recovery_ramdisk="$(recovery_ramdisk)"
++endif
++# Darth9
++
+ endif # BOARD_USES_RECOVERY_AS_BOOT
+
+ ifdef BOARD_INCLUDE_RECOVERY_DTBO
+@@ -2090,6 +2141,22 @@ endif
+ .PHONY: recoveryimage
+ recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET) $(RECOVERY_RESOURCE_ZIP)
+ 
++# Darth9 # FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER
++ifneq ($(NOT_ORANGEFOX),1)
++    ifeq ($(FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER),1)
++	$(BASH) $(FOX_VENDOR) FOX_VENDOR_CMD="Fox_After_Recovery_Image" \
++  	FOX_MANIFEST_VER="10.0" \
++	INSTALLED_RECOVERYIMAGE_TARGET="$(INSTALLED_RECOVERYIMAGE_TARGET)" \
++	TARGET_ARCH="$(TARGET_ARCH)" \
++	TARGET_RECOVERY_ROOT_OUT="$(TARGET_RECOVERY_ROOT_OUT)" \
++	MKBOOTIMG="$(MKBOOTIMG)" \
++	MKBOOTFS="$(MKBOOTFS)"
++     #else
++	#$(BASH) $(FOX_VENDOR)
++    endif
++endif
++# Darth9
++
+ ifneq ($(BOARD_NAND_PAGE_SIZE),)
+ $(error MTD device is no longer supported and thus BOARD_NAND_PAGE_SIZE is deprecated.)
+ endif
+@@ -3222,6 +3289,10 @@ endif
+
+ # Appends os version and security patch level as a AVB property descriptor
+
++BOARD_AVB_RECOVERY_ADD_HASH_FOOTER_ARGS += \
++    --prop com.android.build.boot.os_version:$(PLATFORM_VERSION) \
++    --prop com.android.build.boot.security_patch:$(PLATFORM_SECURITY_PATCH)
++
+ BOARD_AVB_SYSTEM_ADD_HASHTREE_FOOTER_ARGS += \
+     --prop com.android.build.system.os_version:$(PLATFORM_VERSION) \
+     --prop com.android.build.system.security_patch:$(PLATFORM_SECURITY_PATCH)
+diff --git a/core/board_config.mk b/core/board_config.mk
+--- a/core/board_config.mk
++++ b/core/board_config.mk
+@@ -177,8 +177,10 @@ endif
+ # Sanity check to warn about likely cryptic errors later in the build.
+ ifeq ($(TARGET_IS_64_BIT),true)
+   ifeq (,$(filter true false,$(TARGET_SUPPORTS_64_BIT_APPS)))
+-    $(warning Building a 32-bit-app-only product on a 64-bit device. \
+-      If this is intentional, set TARGET_SUPPORTS_64_BIT_APPS := false)
++# --- Darth9: this spues out a nonsensical warning; so, stop the spamming
++#    $(warning Building a 32-bit-app-only product on a 64-bit device. \
++#      If this is intentional, set TARGET_SUPPORTS_64_BIT_APPS := false)
++# --- Darth9
+   endif
+ endif
+ 
+diff --git a/core/config.mk b/core/config.mk
+--- a/core/config.mk
++++ b/core/config.mk
+@@ -637,6 +637,19 @@ else
+ MD5SUM:=md5sum
+ endif
+ 
++# Darth9
++# OrangeFox post script
++FOX_CURRENT_DEV_STR := $(shell git -C bootable/recovery log -1 --format='%ad (%h)' --date=short)
++ifdef NOT_ORANGEFOX
++  FOX_VENDOR :=
++  BASH :=
++else
++  FOX_VENDOR := vendor/recovery/OrangeFox.sh
++  BASH := bash
++  FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER := 1
++endif
++# Darth9
++
+ APICHECK_COMMAND := $(JAVA) -Xmx4g -jar $(APICHECK) --no-banner --compatible-output=yes
+ 
+ # Boolean variable determining if the whitelist for compatible properties is enabled
+@@ -898,7 +911,7 @@ $(foreach group,$(call to-upper,$(BOARD_SUPER_PARTITION_GROUPS)), \
+ )
+ 
+ # BOARD_*_PARTITION_LIST: a list of the following tokens
+-valid_super_partition_list := system vendor product product_services odm
++valid_super_partition_list := system vendor product system_ext product_services odm
+ $(foreach group,$(call to-upper,$(BOARD_SUPER_PARTITION_GROUPS)), \
+     $(if $(filter-out $(valid_super_partition_list),$(BOARD_$(group)_PARTITION_LIST)), \
+         $(error BOARD_$(group)_PARTITION_LIST contains invalid partition name \
+diff --git a/core/main.mk b/core/main.mk
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -285,11 +285,11 @@ enable_target_debugging := true
+ tags_to_install :=
+ ifneq (,$(user_variant))
+   # Target is secure in user builds.
+-  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
++  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
+   ADDITIONAL_DEFAULT_PROPERTIES += security.perf_harden=1
+ 
+   ifeq ($(user_variant),user)
+-    ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=1
++    ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=0
+   endif
+ 
+   ifeq ($(user_variant),userdebug)

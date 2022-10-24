@@ -1,0 +1,179 @@
+diff --git a/core/Makefile b/core/Makefile
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -95,7 +95,7 @@ $(INSTALLED_DEFAULT_PROP_TARGET): $(intermediate_system_build_prop)
+ 	        echo "#" >> $@;
+ 	$(hide) echo ro.bootimage.build.date=`$(DATE_FROM_FILE)`>>$@
+ 	$(hide) echo ro.bootimage.build.date.utc=`$(DATE_FROM_FILE) +%s`>>$@
+-	$(hide) echo ro.bootimage.build.fingerprint="$(BUILD_FINGERPRINT_FROM_FILE)">>$@
++# Darth9	$(hide) echo ro.bootimage.build.fingerprint="$(BUILD_FINGERPRINT_FROM_FILE)">>$@
+ 	$(hide) build/tools/post_process_props.py $@
+ 
+ # -----------------------------------------------------------------
+@@ -130,23 +130,26 @@ BUILD_VERSION_TAGS := $(subst $(space),$(comma),$(sort $(BUILD_VERSION_TAGS)))
+ build_desc := $(TARGET_PRODUCT)-$(TARGET_BUILD_VARIANT) $(PLATFORM_VERSION) $(BUILD_ID) $(BUILD_NUMBER_FROM_FILE) $(BUILD_VERSION_TAGS)
+ $(intermediate_system_build_prop): PRIVATE_BUILD_DESC := $(build_desc)
+ 
+-# The string used to uniquely identify the combined build and product; used by the OTA server.
+-ifeq (,$(strip $(BUILD_FINGERPRINT)))
+-  ifneq ($(filter eng.%,$(BUILD_NUMBER)),)
+-    # Trim down BUILD_FINGERPRINT: the default BUILD_NUMBER makes it easily exceed
+-    # the Android system property length limit (PROPERTY_VALUE_MAX=92).
+-    BF_BUILD_NUMBER := $(shell echo $${USER:0:6})$(shell $(DATE) +%m%d%H%M)
+-  else
+-    BF_BUILD_NUMBER := $(BUILD_NUMBER)
+-  endif
+-  BUILD_FINGERPRINT := $(PRODUCT_BRAND)/$(TARGET_PRODUCT)/$(TARGET_DEVICE):$(PLATFORM_VERSION)/$(BUILD_ID)/$(BF_BUILD_NUMBER):$(TARGET_BUILD_VARIANT)/$(BUILD_VERSION_TAGS)
+-endif
+-ifneq ($(words $(BUILD_FINGERPRINT)),1)
+-  $(error BUILD_FINGERPRINT cannot contain spaces: "$(BUILD_FINGERPRINT)")
+-endif
+-
+-$(shell mkdir -p $(PRODUCT_OUT) && echo $(BUILD_FINGERPRINT) > $(PRODUCT_OUT)/build_fingerprint.txt)
+-BUILD_FINGERPRINT_FROM_FILE := $$(cat $(PRODUCT_OUT)/build_fingerprint.txt)
++# Darth9
++## The string used to uniquely identify the combined build and product; used by the OTA server.
++#ifeq (,$(strip $(BUILD_FINGERPRINT)))
++#  ifneq ($(filter eng.%,$(BUILD_NUMBER)),)
++#    # Trim down BUILD_FINGERPRINT: the default BUILD_NUMBER makes it easily exceed
++#    # the Android system property length limit (PROPERTY_VALUE_MAX=92).
++#    BF_BUILD_NUMBER := $(shell echo $${USER:0:6})$(shell $(DATE) +%m%d%H%M)
++#  else
++#    BF_BUILD_NUMBER := $(BUILD_NUMBER)
++#  endif
++#  BUILD_FINGERPRINT := $(PRODUCT_BRAND)/$(TARGET_PRODUCT)/$(TARGET_DEVICE):$(PLATFORM_VERSION)/$(BUILD_ID)/$(BF_BUILD_NUMBER):$(TARGET_BUILD_VARIANT)/$(BUILD_VERSION_TAGS)
++#endif
++#
++#ifneq ($(words $(BUILD_FINGERPRINT)),1)
++#  $(error BUILD_FINGERPRINT cannot contain spaces: "$(BUILD_FINGERPRINT)")
++#endif
++#
++#$(shell mkdir -p $(PRODUCT_OUT) && echo $(BUILD_FINGERPRINT) > $(PRODUCT_OUT)/build_fingerprint.txt)
++#BUILD_FINGERPRINT_FROM_FILE := $$(cat $(PRODUCT_OUT)/build_fingerprint.txt)
++# Darth9
+ 
+ # The string used to uniquely identify the system build; used by the OTA server.
+ # This purposefully excludes any product-specific variables.
+@@ -238,7 +241,7 @@ endif
+ 			PLATFORM_VERSION_ALL_CODENAMES="$(PLATFORM_VERSION_ALL_CODENAMES)" \
+ 			BUILD_VERSION_TAGS="$(BUILD_VERSION_TAGS)" \
+ 			TARGET_BOOTLOADER_BOARD_NAME="$(TARGET_BOOTLOADER_BOARD_NAME)" \
+-			BUILD_FINGERPRINT="$(BUILD_FINGERPRINT_FROM_FILE)" \
++# Darth9			BUILD_FINGERPRINT="$(BUILD_FINGERPRINT_FROM_FILE)" \
+ 			$(if $(OEM_THUMBPRINT_PROPERTIES),BUILD_THUMBPRINT="$(BUILD_THUMBPRINT)") \
+ 			TARGET_BOARD_PLATFORM="$(TARGET_BOARD_PLATFORM)" \
+ 			TARGET_CPU_ABI_LIST="$(TARGET_CPU_ABI_LIST)" \
+@@ -296,7 +299,7 @@ $(INSTALLED_VENDOR_BUILD_PROP_TARGET): $(INSTALLED_BUILD_PROP_TARGET)
+ 	$(hide) echo > $@
+ 	$(hide) echo ro.vendor.build.date=`$(DATE_FROM_FILE)`>>$@
+ 	$(hide) echo ro.vendor.build.date.utc=`$(DATE_FROM_FILE) +%s`>>$@
+-	$(hide) echo ro.vendor.build.fingerprint="$(BUILD_FINGERPRINT_FROM_FILE)">>$@
++# Darth9	$(hide) echo ro.vendor.build.fingerprint="$(BUILD_FINGERPRINT_FROM_FILE)">>$@
+ endif
+ 
+ # ----------------------------------------------------------------
+@@ -543,6 +546,8 @@ INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
+ ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+   INTERNAL_BOOTIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
+   BOOTIMAGE_EXTRA_DEPS    := $(INSTALLED_DTIMAGE_TARGET)
++else
++  INSTALLED_DTIMAGE_TARGET :=
+ endif
+ 
+ INSTALLED_BOOTIMAGE_TARGET := $(PRODUCT_OUT)/boot.img
+@@ -1014,6 +1019,29 @@ define build-recoveryramdisk
+   @echo Copying baseline ramdisk...
+   $(hide) rsync -a --exclude=etc --exclude=sdcard --exclude=vendor $(IGNORE_CACHE_LINK) $(TARGET_ROOT_OUT) $(TARGET_RECOVERY_OUT) # "cp -Rf" fails to overwrite broken symlinks on Mac.
+   @echo Modifying ramdisk contents...
++  
++# Darth9
++# OrangeFox (FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER)
++ 	$(if $(filter 1,$(FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER)), \
++  	$(hide) $(FOX_VENDOR) \
++  	FOX_VENDOR_CMD="Fox_Before_Recovery_Image" \
++  	TARGET_ARCH="$(TARGET_ARCH)" \
++	TARGET_RECOVERY_ROOT_OUT="$(TARGET_RECOVERY_ROOT_OUT)" \
++	MKBOOTIMG="$(MKBOOTIMG)" \
++	MKBOOTFS="$(MKBOOTFS)" \
++	INTERNAL_RECOVERYIMAGE_ARGS='"$(INTERNAL_RECOVERYIMAGE_ARGS)"' \
++	INTERNAL_MKBOOTIMG_VERSION_ARGS="$(INTERNAL_MKBOOTIMG_VERSION_ARGS)" \
++	BOARD_MKBOOTIMG_ARGS="$(BOARD_MKBOOTIMG_ARGS)" \
++	TARGET_OUT="$(TARGET_OUT)" \
++  	RECOVERY_RAMDISK_COMPRESSOR="$(RECOVERY_RAMDISK_COMPRESSOR)" \
++  	INSTALLED_RECOVERYIMAGE_TARGET="$(INSTALLED_RECOVERYIMAGE_TARGET)" \
++  	BOARD_BOOTIMAGE_PARTITION_SIZE=$(BOARD_BOOTIMAGE_PARTITION_SIZE) \
++  	BOARD_RECOVERYIMAGE_PARTITION_SIZE=$(BOARD_RECOVERYIMAGE_PARTITION_SIZE) \
++  	INTERNAL_KERNEL_CMDLINE="$(INTERNAL_KERNEL_CMDLINE)" \
++  	recovery_ramdisk="$(recovery_ramdisk)" \
++  	recovery_uncompressed_ramdisk="$(recovery_uncompressed_ramdisk)")
++# Darth9
++    
+   $(hide) rm -f $(TARGET_RECOVERY_ROOT_OUT)/init*.rc
+   $(hide) cp -f $(recovery_initrc) $(TARGET_RECOVERY_ROOT_OUT)/
+   $(hide) rm -f $(TARGET_RECOVERY_ROOT_OUT)/sepolicy
+@@ -1147,6 +1175,22 @@ endif
+ .PHONY: recoveryimage
+ recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET) $(RECOVERY_RESOURCE_ZIP)
+ 
++# Darth9 
++# OrangeFox (FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER)
++ifneq ($(NOT_ORANGEFOX),1)
++    ifeq ($(FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER),1)
++	$(BASH) $(FOX_VENDOR) FOX_VENDOR_CMD="Fox_After_Recovery_Image" \
++	INSTALLED_RECOVERYIMAGE_TARGET="$(INSTALLED_RECOVERYIMAGE_TARGET)" \
++	TARGET_ARCH="$(TARGET_ARCH)" \
++	TARGET_RECOVERY_ROOT_OUT="$(TARGET_RECOVERY_ROOT_OUT)" \
++	MKBOOTIMG="$(MKBOOTIMG)" \
++	MKBOOTFS="$(MKBOOTFS)"
++     else
++	$(BASH) $(FOX_VENDOR)
++     endif
++endif
++# Darth9
++
+ ifeq ($(BOARD_NAND_PAGE_SIZE),)
+ BOARD_NAND_PAGE_SIZE := 2048
+ endif
+diff --git a/core/config.mk b/core/config.mk
+--- a/core/config.mk
++++ b/core/config.mk
+@@ -620,6 +620,20 @@ else
+ MD5SUM:=md5sum
+ endif
+ 
++# Darth9
++# OrangeFox post script
++ifdef NOT_ORANGEFOX
++  FOX_VENDOR :=
++  BASH :=
++  FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER :=
++else
++  FOX_CURRENT_DEV_STR := $(shell git -C bootable/recovery log -1 --format='%ad (%h)' --date=short)
++  export FOX_VENDOR=vendor/recovery/OrangeFox.sh
++  export BASH=bash
++  export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
++endif
++# Darth9
++
+ # In-place sed is done different in linux than OS X
+ ifeq ($(HOST_OS),darwin)
+ GSED:=$(shell which gsed)
+diff --git a/core/main.mk b/core/main.mk
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -393,11 +393,13 @@ enable_target_debugging := true
+ tags_to_install :=
+ ifneq (,$(user_variant))
+   # Target is secure in user builds.
+-  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
++# Darth9 - change 1 to 0 on the next line
++  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
+   ADDITIONAL_DEFAULT_PROPERTIES += security.perf_harden=1
+ 
+   ifeq ($(user_variant),user)
+-    ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=1
++# Darth9 - change 1 to 0 on the next line
++    ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=0
+   endif
+ 
+   ifeq ($(user_variant),userdebug)
