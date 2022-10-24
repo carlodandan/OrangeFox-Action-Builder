@@ -72,13 +72,13 @@ jobs:
       with:
         swap-size-gb: 10
       
-    - name: Initial Package
+    - name: Initial Packages
       run: |
         sudo apt update
         sudo apt -y upgrade
         sudo apt -y install git aria2 
 
-    - name: Necessary Package
+    - name: Necessary Packages
       run: |
         git clone https://gitlab.com/OrangeFox/misc/scripts
         cd scripts
@@ -105,7 +105,6 @@ jobs:
         cd sync
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: OrangeFox
-      continue-on-error: true
 
     - name: Clone Device Tree
       run: |
@@ -113,15 +112,23 @@ jobs:
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
 
+    - name: Check Manifest Branch
+      uses: haya14busa/action-cond@v1
+      id: fox_branch
+      with:
+        cond: ${{ github.event.inputs.MANIFEST_BRANCH == '11.0' || github.event.inputs.MANIFEST_BRANCH == '12.1' }}
+        if_true: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        if_false: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka ${{ github.event.inputs.BUILD_TARGET }}image
 
     - name: Building OrangeFox
       run: |
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        ccache -M 10G
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
-        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka ${{ github.event.inputs.BUILD_TARGET }}image
+        ${{ steps.fox_branch.outputs.value }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Upload to Release
