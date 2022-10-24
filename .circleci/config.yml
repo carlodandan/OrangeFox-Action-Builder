@@ -18,7 +18,7 @@ jobs:
       - run: git clone https://gitlab.com/OrangeFox/sync.git && cd ~/OrangeFox/sync
       - run: ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
       - run: echo "Clone Device Tree"
-      - cd ~/fox_12.1
+      - run: cd ~/fox_12.1
       - run: git clone https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong ./device/xiaomi/cannong
       - run: echo "Build OrangeFox"
       - run: cd ~/fox_12.1
