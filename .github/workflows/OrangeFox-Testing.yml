@@ -129,7 +129,7 @@ jobs:
         PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         ccache -M 10G
-        source ./vendor/twrp/build/envsetup.sh
+        source ./make/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
