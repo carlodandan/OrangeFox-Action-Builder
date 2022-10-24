@@ -12,7 +12,7 @@ jobs:
       - run: sudo apt install git aria2 -y
       - run: echo "Necessary Packages"
       - run: git clone https://gitlab.com/OrangeFox/misc/scripts
-      - run: cd scripts
+      - run: cd ~/scripts
       - run: sudo bash setup/android_build_env.sh
       - run: echo "Sync Sources"
       - run: mkdir ~/OrangeFox && cd ~/OrangeFox
