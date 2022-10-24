@@ -494,7 +494,6 @@ WorkNow() {
     echo "-- Stop time =$STOP";
     echo "-- Start time=$START";
     echo "-- Now, clone your device trees to the correct locations!";
-    exit 0;
 }
 
 # --- main() ---
