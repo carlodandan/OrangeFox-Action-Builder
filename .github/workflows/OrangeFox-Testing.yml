@@ -61,31 +61,16 @@ jobs:
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
 
-#    - name: Set Swap Space
-#      uses: pierotofy/set-swap-space@master
-#      with:
-#        swap-size-gb: 10
+    - name: Set Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 10
       
-    - name: Prepare the environment
+    - name: Initial Packages
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt -y install make git aria2 libncurses5 curl python-is-python3 adb autoconf automake axel bc bison build-essential ccache clang cmake curl expat fastboot flex g++ g++-multilib gawk gcc gcc-multilib git gnupg gperf htop imagemagick lib32ncurses5-dev lib32z1-dev libtinfo5 libc6-dev libcap-dev libexpat1-dev libgmp-dev '^liblz4-.*' '^liblzma.*' libmpc-dev libmpfr-dev libncurses5-dev libsdl1.2-dev libssl-dev libtool libxml2 libxml2-utils '^lzma.*' lzop maven ncftp ncurses-dev patch patchelf pkg-config pngcrush pngquant python2.7 python-all-dev re2c schedtool squashfs-tools subversion texinfo unzip w3m xsltproc zip zlib1g-dev lzip libxml-simple-perl libswitch-perl apt-utils 
-       
-    - name: Install Github Cli
-      run: |
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-        sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        sudo apt update
-        sudo apt install -y gh
-
-    - name: ADB Rules
-      run: |
-        sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/M0Rf30/android-udev-rules/master/51-android.rules
-        sudo chmod 644 /etc/udev/rules.d/51-android.rules
-        sudo chown root /etc/udev/rules.d/51-android.rules
-        sudo systemctl restart udev
+        sudo apt -y install git aria2
 
     - name: Install OpenJDK
       uses: actions/setup-java@v3.5.1
@@ -93,30 +78,26 @@ jobs:
         distribution: 'zulu'
         java-version: '8'
         
-    - name: Install repo
+    - name: Necessary Packages
       run: |
-        mkdir ~/bin
-        PATH=~/bin:$PATH
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        chmod a+x ~/bin/repo
-        sudo ln -sf ~/bin/repo /usr/bin/repo
+        sudo bash setup/android_build_env.sh
+        sudo bash setup/install_android_sdk.sh
+      continue-on-error: true
       
-    - name: Clone Sync Script
+    - name: Create Base Folder
       run: |
         PATH=~/bin:$PATH
         mkdir OrangeFox
         cd OrangeFox
         echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Carlo Dandan"
-        git config --global user.email "jasminecarlo01@gmail.com"
-        git clone https://gitlab.com/OrangeFox/sync.git
+        git config --global user.email "jasminecarlo01@gmail.com" 
       id: pwd
 
-    - name: Sync OFRP Sources
+    - name: Sync Manifest/Sources
       run: |
         PATH=~/bin:$PATH
-        cd sync
-        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd .. && cd sync && ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: OrangeFox
       continue-on-error: true
 
@@ -148,7 +129,7 @@ jobs:
       run: |
         PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        ccache -M 20G
+        ccache -M 10G
         source ./build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
