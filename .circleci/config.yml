@@ -24,7 +24,7 @@ jobs:
             mkdir ~/OrangeFox && cd ~/OrangeFox
             git clone https://gitlab.com/OrangeFox/sync.git
             cd ~/OrangeFox/sync
-            YES | ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
+            yes | ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
       - run: 
           name: Build OrangeFox
           command: |
