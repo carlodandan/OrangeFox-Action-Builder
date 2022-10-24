@@ -4,7 +4,7 @@ jobs:
   build:
     machine:
       image: ubuntu-2004:current
-    resource_class: xlarge
+    resource_class: large
       
     steps: 
       - run: echo "Initial Packages"
