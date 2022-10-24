@@ -3,7 +3,7 @@ version: 2.1 # Latest Version Available
 jobs:
   build:
     machine:
-      image: ubuntu-2004:202010-01
+      image: ubuntu-2004:current
     resource_class: xlarge
       
     steps: 
