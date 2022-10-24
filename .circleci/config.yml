@@ -26,6 +26,7 @@ jobs:
             chmod a+x ~/OrangeFox/Sync/sync/orangefox_sync.sh
             cd ~/OrangeFox/Sync/sync
             (yes || true) | ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
+ 
       - run: 
           name: Build OrangeFox
           command: |
@@ -36,14 +37,6 @@ jobs:
             export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
             export LC_ALL="C"
             lunch twrp_cannong-eng && mka adbd recovery.img
-
-      - run:
-          name: Creating Dummy Artifacts
-          command: |
-            echo "OrangeFox*.img" > ~/fox_12.1/out/target/product/cannong/OrangeFox*.img
-            echo "OrangeFox*.zip" > ~/fox_12.1/out/target/product/cannong/OrangeFox*.zip
-            mkdir /tmp/artifacts;
-            echo "my artifact files in a dir" 
 
       - store_artifacts:
           path: |
