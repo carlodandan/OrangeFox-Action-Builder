@@ -7,23 +7,29 @@ jobs:
     resource_class: large
       
     steps: 
-      - run: echo "Initial Packages"
-      - run: cd ~
-      - run: sudo apt install git aria2 -y
-      - run: echo "Necessary Packages"
-      - run: git clone https://gitlab.com/OrangeFox/misc/scripts && cd scripts && sudo bash setup/android_build_env.sh
-      - run: echo "Sync Sources"
-      - run: mkdir ~/OrangeFox && cd ~/OrangeFox
-      - run: git clone https://gitlab.com/OrangeFox/sync.git && cd ~/OrangeFox/sync
-      - run: ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
-      - run: echo "Clone Device Tree"
-      - run: cd ~/fox_12.1
-      - run: git clone https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong ./device/xiaomi/cannong
-      - run: echo "Build OrangeFox"
-      - run: cd ~/fox_12.1
-      - run: source ./build/envsetup.sh
-      - run: export ALLOW_MISSING_DEPENDENCIES=true
-      - run: export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
-      - run: export LC_ALL="C"
-      - run: lunch twrp_cannong-eng && mka adbd recovery.img
+      - run: |
+          echo "Initial Packages"
+          cd ~
+          sudo apt install git aria2 -y
+      - run: |
+          echo "Necessary Packages"
+          git clone https://gitlab.com/OrangeFox/misc/scripts && cd scripts && sudo bash setup/android_build_env.sh
+      - run: |
+          echo "Sync Sources"
+          mkdir ~/OrangeFox && cd ~/OrangeFox
+          git clone https://gitlab.com/OrangeFox/sync.git
+          cd ~/OrangeFox/sync
+          ./orangefox_sync.sh --branch 12.1 --path ~/fox_12.1
+      - run: |
+          echo "Clone Device Tree"
+          cd ~/fox_12.1
+          git clone https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong ./device/xiaomi/cannong
+      - run: |
+          echo "Build OrangeFox"
+          cd ~/fox_12.1
+          source ./build/envsetup.sh
+          export ALLOW_MISSING_DEPENDENCIES=true
+          export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+          export LC_ALL="C"
+          lunch twrp_cannong-eng && mka adbd recovery.img
           
