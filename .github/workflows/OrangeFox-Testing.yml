@@ -140,9 +140,11 @@ jobs:
       run: |
         PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        ccache -M 20G
         source ./build/envsetup.sh
-        export USE_CCACHE=1
-        ccache -M 10GB
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+        export LC_ALL="C"
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
         echo "Done..."
       working-directory: ${{ steps.pwd.outputs.workdir }}
