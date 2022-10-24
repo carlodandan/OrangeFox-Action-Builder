@@ -142,8 +142,7 @@ jobs:
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         source ./build/envsetup.sh
         export USE_CCACHE=1
-        export CCACHE_SIZE="50G"
-        export CCACHE_DIR="/usr/bin/ccache"
+        ccache -M 10GB
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
         echo "Done..."
       working-directory: ${{ steps.pwd.outputs.workdir }}
