@@ -71,35 +71,34 @@ jobs:
         sudo apt update
         sudo apt -y upgrade
         sudo apt -y install git aria2
-
-    - name: Install OpenJDK
-      uses: actions/setup-java@v3.5.1
-      with:
-        distribution: 'zulu'
-        java-version: '8'
         
     - name: Necessary Packages
       run: |
+        git clone https://gitlab.com/OrangeFox/misc/scripts
+        cd scripts
         sudo bash setup/android_build_env.sh
-        sudo bash setup/install_android_sdk.sh
-      continue-on-error: true
+
+    - name: Install OpenJDK
+      uses: actions/setup-java@v3.6.0
+      with:
+        distribution: 'zulu'
+        java-version: '17'
       
-    - name: Create Base Folder
+    - name: Set-up Manifest
       run: |
-        PATH=~/bin:$PATH
         mkdir OrangeFox
         cd OrangeFox
         echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Carlo Dandan"
-        git config --global user.email "jasminecarlo01@gmail.com" 
+        git config --global user.email "jasminecarlo01@gmail.com"
+        git clone https://gitlab.com/OrangeFox/sync.git
       id: pwd
 
-    - name: Sync Manifest/Sources
+    - name: Sync Manifest
       run: |
-        PATH=~/bin:$PATH
-        cd .. && cd sync && ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd sync
+        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: OrangeFox
-      continue-on-error: true
 
     - name: Clone Device Tree
       run: |
