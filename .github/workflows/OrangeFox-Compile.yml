@@ -80,15 +80,13 @@ jobs:
 
     - name: Necessary Packages
       run: |
-        git clone https://gitlab.com/OrangeFox/misc/scripts
-        cd scripts
-        sudo bash setup/android_build_env.sh
+        git clone https://github.com/cd-Spidey/cd-Spidey/ ./dependencies
+        sudo bash dependencies/setup/android/build_env.sh
         
     - name: Install OpenJDK
-      uses: actions/setup-java@v3.6.0
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+      run: |
+        git clone https://github.com/cd-Spidey/cd-Spidey/ ./dependencies
+        sudo bash dependencies/setup/android/open_jdk.sh
       
     - name: Set-up Manifest
       run: |
