@@ -80,13 +80,13 @@ jobs:
 
     - name: Necessary Packages
       run: |
-        git clone https://github.com/cd-Spidey/cd-Spidey/ ./dependencies
-        sudo bash dependencies/setup/android/build_env.sh
+        git clone https://github.com/cd-Spidey/cd-Spidey/ ./buildenv
+        sudo bash buildenv/setup/android/build_env.sh
         
     - name: Install OpenJDK
       run: |
-        git clone https://github.com/cd-Spidey/cd-Spidey/ ./dependencies
-        sudo bash dependencies/setup/android/open_jdk.sh
+        git clone https://github.com/cd-Spidey/cd-Spidey/ ./opendjk
+        sudo bash opendjk/setup/android/open_jdk.sh
       
     - name: Set-up Manifest
       run: |
