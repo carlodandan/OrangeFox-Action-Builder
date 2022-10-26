@@ -74,7 +74,7 @@ jobs:
         
     - name: Necessary Packages
       run: |
-        git clone https://github.com/cd-Spidey/cd-Spidey/ ./buildenv
+        git clone https://github.com/cd-Spidey/Random/ ./buildenv
         sudo bash buildenv/setup/android/build_env.sh
 
     - name: Install OpenJDK
