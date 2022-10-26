@@ -96,12 +96,12 @@ jobs:
     - name: Sync Manifest
       run: |
         cd sync
+        ./orangefox_sync.sh --branch 10.0 --path ${GITHUB_WORKSPACE}/OrangeFox/fox_10.0
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
       working-directory: OrangeFox
 
     - name: Clone Device Tree
       run: |
-        PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
@@ -127,8 +127,7 @@ jobs:
       run: |
         PATH=~/bin:$PATH
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        ccache -M 10G
-        source ./make/envsetup.sh
+        source ./build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
