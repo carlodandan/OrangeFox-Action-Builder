@@ -75,7 +75,7 @@ jobs:
     - name: Necessary Packages
       run: |
         git clone https://github.com/cd-Spidey/Random/ ./buildenv
-        sudo bash buildenv/setup/android/build_env.sh
+        sudo bash buildenv/setup/packages/build_env.sh
 
     - name: Install OpenJDK
       uses: actions/setup-java@v3.6.0
