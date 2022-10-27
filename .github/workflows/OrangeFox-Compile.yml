@@ -63,6 +63,12 @@ jobs:
     steps:
     - name: Check Out
       uses: actions/checkout@v3.1.0
+      
+    - name: Set Current Date # For Build Date Info
+      id: today
+      run: |
+        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%H%M)" >> $GITHUB_OUTPUT
+        echo "${{ steps.today.outputs.date }}"
 
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
