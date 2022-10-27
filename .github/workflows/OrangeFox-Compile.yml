@@ -67,12 +67,7 @@ jobs:
     - name: Set Current Date # For Build Date Info, currently using Asia/Manila
       id: today
       run: |
-        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%P)" >> $GITHUB_OUTPUT
-
-    - name: Get Current Date # For Testing.
-      run: |
-        echo "${{ steps.today.outputs.date }}"
-        echo ${{ steps.today.outputs.date }}
+        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%p)" >> $GITHUB_OUTPUT
         
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
@@ -148,8 +143,8 @@ jobs:
         name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }}
         tag_name: ${{ github.run_id }}
         body: |
+          Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }} - ${{ steps.today.outputs.date }}
+          Device: ${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }}
           Manifest: ${{ github.event.inputs.MANIFEST_URL }}
-          Branch: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-          Device: ${{ github.event.inputs.DEVICE_NAME }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
