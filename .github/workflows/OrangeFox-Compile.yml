@@ -67,7 +67,7 @@ jobs:
     - name: Set Current Date # For Build Date Info, currently using Asia/Manila
       id: today
       run: |
-        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%H%M)" >> $GITHUB_OUTPUT
+        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%P)" >> $GITHUB_OUTPUT
 
     - name: Get Current Date # For Testing.
       run: |
