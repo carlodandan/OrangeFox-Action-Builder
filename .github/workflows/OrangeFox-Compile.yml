@@ -80,14 +80,20 @@ jobs:
     - name: Build Environment
       run: |
         sudo apt install aria2 -y
-        git clone https://gitlab.com/OrangeFox/misc/scripts 
-        cd scripts
-        sudo bash setup/android_build_env.sh
+        git clone https://github.com/cd-Spidey/Random.git ./buildenv
+        sudo bash buildenv/setup/packages/build_env.sh
         
     - name: Install OpenJDK
       run: |
         git clone https://github.com/cd-Spidey/Random.git ./opendjk
         sudo bash opendjk/setup/packages/open_jdk.sh
+        
+    - name: Install Git-Repo
+      run: |
+        git config --global advice.detachedHead false
+        git clone https://android.googlesource.com/tools/repo -b v2.29 ~/bin
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
       
     - name: Set-up Manifest
       run: |
