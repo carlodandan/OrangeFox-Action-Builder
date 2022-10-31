@@ -108,7 +108,7 @@ jobs:
         cond: ${{ github.event.inputs.MANIFEST_BRANCH == '11.0' || github.event.inputs.MANIFEST_BRANCH == '12.1' }}
         if_true: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
         if_false: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka ${{ github.event.inputs.BUILD_TARGET }}image
-
+#${{ steps.fox_branch.outputs.value }}
     - name: Building Custom Recovery
       run: |
         cd ~/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
@@ -116,7 +116,7 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
-        ${{ steps.fox_branch.outputs.value }}
+        brunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
         echo "Done..."
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
