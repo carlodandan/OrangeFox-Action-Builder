@@ -77,16 +77,12 @@ jobs:
       with:
         swap-size-gb: 10
       
-    - name: Initial Packages
+    - name: Build Environment
       run: |
-        sudo apt update
-        sudo apt -y upgrade
-        sudo apt -y install git aria2 
-
-    - name: Necessary Packages
-      run: |
-        git clone https://github.com/cd-Spidey/Random.git ./buildenv
-        sudo bash buildenv/setup/packages/build_env.sh
+        sudo apt install aria2 -y
+        git clone https://gitlab.com/OrangeFox/misc/scripts 
+        cd scripts
+        sudo bash setup/android_build_env.sh
         
     - name: Install OpenJDK
       run: |
