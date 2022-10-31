@@ -66,15 +66,10 @@ jobs:
       with:
         swap-size-gb: 10
       
-    - name: Initial Packages
+    - name: Build Environment
       run: |
-        sudo apt update
-        sudo apt -y upgrade
-        sudo apt -y install git aria2
-        
-    - name: Necessary Packages
-      run: |
-        git clone https://github.com/cd-Spidey/Random/ ./buildenv
+        sudo apt install aria2 -y
+        git clone https://github.com/cd-Spidey/Random.git ./buildenv
         sudo bash buildenv/setup/packages/build_env.sh
 
     - name: Install OpenJDK
@@ -85,26 +80,19 @@ jobs:
       
     - name: Set-up Manifest
       run: |
-        mkdir OrangeFox
-        cd OrangeFox
-        echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
-        git config --global user.name "Carlo Dandan"
-        git config --global user.email "jasminecarlo01@gmail.com"
+        mkdir ~/orangefoxtemp
+        cd ~/orangefoxtemp
         git clone https://gitlab.com/OrangeFox/sync.git
-      id: pwd
-
-    - name: Sync Manifest
-      run: |
         cd sync
-        ./orangefox_sync.sh --branch 10.0 --path ${GITHUB_WORKSPACE}/OrangeFox/fox_10.0
-        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-      working-directory: OrangeFox
+        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ~/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+
 
     - name: Clone Device Tree
       run: |
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd ~/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        git config --global user.name "Carlo Dandan"
+        git config --global user.email "jasminecarlo01@gmail.com"
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
-      working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
@@ -114,20 +102,10 @@ jobs:
         if_true: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
         if_false: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && mka ${{ github.event.inputs.BUILD_TARGET }}image
 
-    - name: Re-Sync Sources
-      run: |
-        PATH=~/bin:$PATH
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}/bootable/recovery
-        git pull --recurse-submodules
-        git submodule foreach --recursive git pull origin master
-      working-directory: ${{ steps.pwd.outputs.workdir }}
-      continue-on-error: true
-
     - name: Building Custom Recovery
       run: |
-        PATH=~/bin:$PATH
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        source ./build/envsetup.sh
+        cd ~/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
         export LC_ALL="C"
