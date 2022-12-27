@@ -75,7 +75,7 @@ jobs:
     - name: Set Swap Space
       uses: pierotofy/set-swap-space@master
       with:
-        swap-size-gb: 10
+        swap-size-gb: 16
       
     - name: Build Environment
       run: |
@@ -128,7 +128,7 @@ jobs:
     - name: Building OrangeFox
       run: |
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        ccache -M 40G
+        ccache -M 20G
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
