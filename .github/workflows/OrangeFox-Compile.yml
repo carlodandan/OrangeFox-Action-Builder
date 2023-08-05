@@ -82,20 +82,9 @@ jobs:
     - name: Build Environment
       run: |
         sudo apt install aria2 -y
-        git clone https://github.com/cd-Spidey/Random.git ./buildenv
-        sudo bash buildenv/setup/packages/build_env.sh
-        
-    - name: Install OpenJDK
-      run: |
-        git clone https://github.com/cd-Spidey/Random.git ./opendjk
-        sudo bash opendjk/setup/packages/open_jdk.sh
-        
-    - name: Install Git-Repo
-      run: |
-        git config --global advice.detachedHead false
-        git clone https://android.googlesource.com/tools/repo -b v2.29 ~/bin
-        chmod a+x ~/bin/repo
-        sudo ln -sf ~/bin/repo /usr/bin/repo
+        git clone https://gitlab.com/OrangeFox/misc/scripts
+        cd scripts
+        sudo bash setup/android_build_env.sh
       
     - name: Set-up Manifest
       run: |
@@ -118,15 +107,7 @@ jobs:
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
-
-    - name: Check Manifest Branch
-      uses: haya14busa/action-cond@v1
-      id: fox_branch
-      with:
-        cond: ${{ github.event.inputs.MANIFEST_BRANCH == '11.0' || github.event.inputs.MANIFEST_BRANCH == '12.1' }}
-        if_true: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
-        if_false: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && mka ${{ github.event.inputs.BUILD_TARGET }}image
-
+      
     - name: Building OrangeFox
       run: |
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
@@ -134,7 +115,7 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
-        ${{ steps.fox_branch.outputs.value }}
+        
       working-directory: ${{ steps.pwd.outputs.workdir }}
       
     - name: Upload to Release
