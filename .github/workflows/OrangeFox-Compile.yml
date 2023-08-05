@@ -9,17 +9,10 @@ name: OrangeFox - Build
 on:
   workflow_dispatch:
     inputs:
-      MANIFEST_URL:
-        description: 'Manifest'
-        required: true
-        default: ''
-        type: choice
-        options:
-        - https://gitlab.com/OrangeFox/sync.git
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: '10'
+        default: '12.1'
         type: choice
         options:
         - 12.1
@@ -29,23 +22,19 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
-        default: 'https://github.com/cd-Spidey/custom_recovery_tree_xiaomi_cannong'
+        default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: 'fox_12.1-omni'
+        default: 'android-12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
-        default: 'device/xiaomi/cannong'
+        default: 'device/realme/nashc'
       DEVICE_NAME:
         description: 'Specify your Device Codename.'
         required: true
-        default: 'cannong'
-      MAKEFILE_NAME:
-        description: 'Specify your twrp/omni_codename'
-        required: true
-        default: 'omni_cannong'
+        default: 'nashc'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
@@ -54,7 +43,7 @@ on:
         options:
         - boot
         - recovery
-        - vendor_boot
+        - vendorboot
 
 jobs:
   build:
@@ -104,8 +93,8 @@ jobs:
       id: fox_branch
       with:
         cond: ${{ github.event.inputs.MANIFEST_BRANCH == '11.0' || github.event.inputs.MANIFEST_BRANCH == '12.1' }}
-        if_true: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
-        if_false: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && mka ${{ github.event.inputs.BUILD_TARGET }}image
+        if_true: lunch twrp_${{ github.event.inputs.DEVICE_NAME }}-eng && make clean && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        if_false: lunch omni_${{ github.event.inputs.DEVICE_NAME }}-eng && make clean && mka ${{ github.event.inputs.BUILD_TARGET }}image
       
     - name: Building OrangeFox
       run: |
@@ -118,17 +107,33 @@ jobs:
 
     - name: Set Build Date # For Build Date Info, currently using Asia/Manila
       run: |
-        echo "BUILD_DATE=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%p)" >> $GITHUB_ENV
-      
+        echo "BUILD_DATE=$(TZ=Asia/Manila date +%Y%m%d)" >> $GITHUB_ENV
+
+    - name: Check if Recovery Exist
+      run: |
+        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        if [ -f out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img ]; then
+            echo "CHECK_IMG_IS_OK=true" >> $GITHUB_ENV
+        else
+            echo "Recovery out directory is empty."
+            exit 1
+        fi
+        if [ -f out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip ]; then
+            echo "CHECK_ZIP_IS_OK=true" >> $GITHUB_ENV
+        else
+            echo "Recovery out directory is empty."
+            exit 1
+        fi
+
     - name: Upload to Release
+      if: env.CHECK_IMG_IS_OK == 'true' && env.CHECK_ZIP_IS_OK == 'true'
       uses: softprops/action-gh-release@v1
       with:
         files: |
           OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img
           OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip
-        name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }}
+        name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
         body: |
-          Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }} - ${{ env.BUILD_DATE }}
+          Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
           Device: ${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }}
-          Manifest: ${{ github.event.inputs.MANIFEST_URL }}
