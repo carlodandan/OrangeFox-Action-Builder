@@ -19,7 +19,7 @@ on:
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
-        default: '10' # Branch 11 and 12.1's lunch command doesn't work using this action builder.
+        default: '10'
         type: choice
         options:
         - 12.1
@@ -58,23 +58,21 @@ on:
 
 jobs:
   build:
-    if: github.event.repository.owner.id == github.event.sender.id
+    name: Build Kernel by ${{ github.actor }}
     runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
     steps:
-    - name: Check Out
-      uses: actions/checkout@v3.1.0
-      
-    - name: Set Current Date # For Build Date Info, currently using Asia/Manila
-      id: today
-      run: |
-        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%p)" >> $GITHUB_OUTPUT
-        
-    - name: Cleanup
+    - name: Checkout
+      uses: actions/checkout@v3
+              
+    - name: Clean-up
       uses: rokibhasansagar/slimhub_actions@main
 
-    - name: Set Swap Space
+    - name: Swap Space
       uses: pierotofy/set-swap-space@master
       with:
         swap-size-gb: 12
@@ -107,6 +105,14 @@ jobs:
         cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
+
+    - name: Check Manifest Branch
+      uses: haya14busa/action-cond@v1
+      id: fox_branch
+      with:
+        cond: ${{ github.event.inputs.MANIFEST_BRANCH == '11.0' || github.event.inputs.MANIFEST_BRANCH == '12.1' }}
+        if_true: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        if_false: lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && mka ${{ github.event.inputs.BUILD_TARGET }}image
       
     - name: Building OrangeFox
       run: |
@@ -115,8 +121,13 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
-        
+        ${{ steps.fox_branch.outputs.value }}
       working-directory: ${{ steps.pwd.outputs.workdir }}
+
+    - name: Set Current Date # For Build Date Info, currently using Asia/Manila
+      id: today
+      run: |
+        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%p)" >> $GITHUB_OUTPUT
       
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
@@ -130,5 +141,3 @@ jobs:
           Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }} - ${{ steps.today.outputs.date }}
           Device: ${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }}
           Manifest: ${{ github.event.inputs.MANIFEST_URL }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
