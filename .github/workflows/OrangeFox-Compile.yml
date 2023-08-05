@@ -86,25 +86,18 @@ jobs:
       
     - name: Set-up Manifest
       run: |
-        mkdir OrangeFox
-        cd OrangeFox
-        echo "workdir=$(pwd)" >> $GITHUB_OUTPUT
+        mkdir -p ${GITHUB_WORKSPACE}/OrangeFox
+        cd ${GITHUB_WORKSPACE}/OrangeFox
         git config --global user.name "Carlo Dandan"
         git config --global user.email "jasminecarlo01@gmail.com"
         git clone https://gitlab.com/OrangeFox/sync.git
-      id: pwd
-
-    - name: Sync Manifest
-      run: |
         cd sync
         ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-      working-directory: OrangeFox
 
     - name: Clone Device Tree
       run: |
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
-      working-directory: ${{ steps.pwd.outputs.workdir }}
 
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
@@ -116,18 +109,16 @@ jobs:
       
     - name: Building OrangeFox
       run: |
-        cd fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
         ${{ steps.fox_branch.outputs.value }}
-      working-directory: ${{ steps.pwd.outputs.workdir }}
 
-    - name: Set Current Date # For Build Date Info, currently using Asia/Manila
-      id: today
+    - name: Set Build Date # For Build Date Info, currently using Asia/Manila
       run: |
-        echo "date=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%p)" >> $GITHUB_OUTPUT
+        echo "BUILD_DATE=$(TZ=Asia/Manila date +%Y%m%d-%l:%M%p)" >> $GITHUB_ENV
       
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
@@ -138,6 +129,6 @@ jobs:
         name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }}
         tag_name: ${{ github.run_id }}
         body: |
-          Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }} - ${{ steps.today.outputs.date }}
+          Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }} - ${{ env.BUILD_DATE }}
           Device: ${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }}
           Manifest: ${{ github.event.inputs.MANIFEST_URL }}
