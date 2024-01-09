@@ -1,16 +1,16 @@
 # OrangeFox Action Builder
-Compile your first custom recovery from OrangeFox Recovery Project using Github Action.
+Compile your first custom recovery from OrangeFox Recovery using Github Action.
 
 # How to Use
 1. Fork this repository.
 
 2. Go to `Action` tab > `All workflows` > `OrangeFox - Build` > `Run workflow`, then fill all the required information:
- * Manifest Branch (12.1 and 11.0)
- * Device Tree (Your device tree repository link)
- * Device Tree Branch (Your device tree repository branch)
- * Device Name (Your device codename)
- * Device Path (device/brand/codename)
- * Build Target (boot, reecovery, vendorboot)
+ * MANIFEST_BRANCH (`12.1` and `11.0`)
+ * DEVICE_TREE (Your device tree repository link.)
+ * DEVICE_TREE_BRANCH (Your device tree repository branch.)
+ * DEVICE_PATH (`device/vendor/codename`)
+ * DEVICE_NAME (Your device codename)
+ * BUILD_TARGET (`boot`, `recovery`, `vendorboot`)
 
  # Note
 This action will now only support manifest 12.1 and 11.0, since all orangefox manifest below 11.0 are considered obsolete.

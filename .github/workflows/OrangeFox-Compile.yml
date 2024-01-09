@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       MANIFEST_BRANCH:
-        description: 'OrangeFox Branch'
+        description: 'OrangeFox Manifest Branch'
         required: true
         default: '12.1'
         type: choice
@@ -18,19 +18,19 @@ on:
         - 12.1
         - 11.0
       DEVICE_TREE:
-        description: 'Custom Recovery Tree'
+        description: 'OrangeFox Device Tree'
         required: true
         default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
       DEVICE_TREE_BRANCH:
-        description: 'Custom Recovery Tree Branch'
+        description: 'OrangeFox Device Tree Branch'
         required: true
         default: 'android-12.1'
       DEVICE_PATH:
-        description: 'Specify your device path.'
+        description: 'Specify your Device Path'
         required: true
         default: 'device/realme/nashc'
       DEVICE_NAME:
-        description: 'Specify your Device Codename.'
+        description: 'Specify your Device Codename'
         required: true
         default: 'nashc'
       BUILD_TARGET:
@@ -45,7 +45,7 @@ on:
 
 jobs:
   build:
-    name: Build OFRP by ${{ github.actor }}
+    name: Build OFR by ${{ github.actor }}
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     env:
@@ -133,11 +133,13 @@ jobs:
         files: |
           OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img
           OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.zip
-        name: Unofficial OrangeFox for ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+        name: OrangeFox Recovery for ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
         body: |
-          Build: ${{ github.event.inputs.MANIFEST_BRANCH }}
+          ## OrangeFox Recovery Build - Unofficial
+          Build: fox_${{ github.event.inputs.MANIFEST_BRANCH }}
           Device: [Device Tree/Branch](${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }})
           Commit: Most recent [commit](${{ github.event.inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
-          MD5 (img): ${{ env.MD5_IMG }}
-          MD5 (zip): ${{ env.MD5_ZIP }}
+          ## MD5SUM
+          * ${{ env.MD5_IMG }} for IMG file.
+          * ${{ env.MD5_ZIP }} for ZIP file.
