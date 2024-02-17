@@ -13,4 +13,5 @@ Compile your first custom recovery from OrangeFox Recovery using Github Action.
  * BUILD_TARGET (`boot`, `recovery`, `vendorboot`)
 
  # Note
-This action will now only support manifest 12.1 and 11.0, since all orangefox manifest below 11.0 are considered obsolete.
+* This action will now only support manifest 12.1 and 11.0, since all orangefox manifest below 11.0 are considered obsolete.
+* Make sure your tree uses right variable (updated vars) from OrangeFox; [fox_11.0](https://gitlab.com/OrangeFox/vendor/recovery/-/blob/fox_11.0/orangefox_build_vars.txt) and [fox_12.1](https://gitlab.com/OrangeFox/vendor/recovery/-/blob/fox_12.1/orangefox_build_vars.txt), to avoid build erros.
