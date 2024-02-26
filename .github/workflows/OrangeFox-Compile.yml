@@ -9,7 +9,7 @@ name: OrangeFox - Build
 on:
   workflow_dispatch:
     inputs:
-      MANIFEST_BRANCH:
+      MANIFEST_BRANCH:12.1
         description: 'OrangeFox Manifest Branch'
         required: true
         default: '12.1'
@@ -17,23 +17,23 @@ on:
         options:
         - 12.1
         - 11.0
-      DEVICE_TREE:
+      DEVICE_TREE:https://github.com/cd-Crypton/custom_recovery_tree_infinix_x6731b
         description: 'OrangeFox Device Tree'
         required: true
         default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
-      DEVICE_TREE_BRANCH:
+      DEVICE_TREE_BRANCH:android-12.1
         description: 'OrangeFox Device Tree Branch'
         required: true
         default: 'android-12.1'
-      DEVICE_PATH:
+      DEVICE_PATH:device/infinix/x6731b
         description: 'Specify your Device Path'
         required: true
         default: 'device/realme/nashc'
-      DEVICE_NAME:
+      DEVICE_NAME:x6731b
         description: 'Specify your Device Codename'
         required: true
         default: 'nashc'
-      BUILD_TARGET:
+      BUILD_TARGET:recovery
         description: 'Specify your Build Target'
         required: true
         default: 'recovery'
