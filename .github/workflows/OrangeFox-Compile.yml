@@ -54,7 +54,7 @@ jobs:
       contents: write
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
               
     - name: Clean-up
       uses: rokibhasansagar/slimhub_actions@main
