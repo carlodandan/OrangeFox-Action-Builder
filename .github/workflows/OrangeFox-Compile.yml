@@ -20,23 +20,23 @@ on:
       DEVICE_TREE:
         description: 'OrangeFox Device Tree'
         required: true
-        default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
+        default: 'https://github.com/Positive205/infinix-x6831-tree'
       DEVICE_TREE_BRANCH:
         description: 'OrangeFox Device Tree Branch'
         required: true
-        default: 'android-12.1'
+        default: 'main'
       DEVICE_PATH:
         description: 'Specify your Device Path'
         required: true
-        default: 'device/realme/nashc'
+        default: 'device/infinix/Infinix-X6831'
       DEVICE_NAME:
-        description: 'Specify your Device Codename'
+        description: 'Infinix-X6831'
         required: true
-        default: 'nashc'
+        default: 'Infinix-X6831'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
-        default: 'recovery'
+        default: 'boot'
         type: choice
         options:
         - boot
