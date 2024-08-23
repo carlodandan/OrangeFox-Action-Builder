@@ -42,6 +42,11 @@ on:
         - boot
         - recovery
         - vendorboot
+      USE_CCACHE:
+        description: Use ccache for compilation
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
@@ -72,6 +77,7 @@ jobs:
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
+      if: github.event.inputs.USE_CCACHE == 'true'
       with:
         max-size: "10G"
       
@@ -97,9 +103,11 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         set +e
+        if [[ ${{ github.event.inputs.USE_CCACHE }} == true ]]; then
         export USE_CCACHE=1
         export CCACHE_EXEC=/usr/bin/ccache
         sed -i 's/return sandboxConfig\.working/return false/g' build/soong/ui/build/sandbox_linux.go
+        fi
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
