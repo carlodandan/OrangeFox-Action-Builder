@@ -20,21 +20,21 @@ on:
       DEVICE_TREE:
         description: 'OrangeFox Device Tree'
         required: true
-        default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
+        default: 'https://github.com/carlodandan/OrangeFox-Action-Builder/blob/main/.github/workflows/OrangeFox-Compile.yml'
       DEVICE_TREE_BRANCH:
         description: 'OrangeFox Device Tree Branch'
         required: true
         default: 'android-12.1'
       DEVICE_PATH:
-        description: 'Specify your Device Path'
+        description: ''
         required: true
-        default: 'device/realme/nashc'
+        default: 'device/samsung/m14x'
       DEVICE_NAME:
-        description: 'Specify your Device Codename'
+        description: 'm14x'
         required: true
-        default: 'nashc'
+        default: 'SM-E146B'
       BUILD_TARGET:
-        description: 'Specify your Build Target'
+        description: 'recovery'
         required: true
         default: 'recovery'
         type: choice
