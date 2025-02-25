@@ -22,19 +22,19 @@ on:
         required: true
         default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
       DEVICE_TREE_BRANCH:
-        description: 'OrangeFox Device Tree Branch'
+        description: 'ndroid-12.1'
         required: true
         default: 'android-12.1'
       DEVICE_PATH:
-        description: 'Specify your Device Path'
+        description: 'device/samsung/s5e8535-common'
         required: true
         default: 'device/realme/nashc'
       DEVICE_NAME:
-        description: 'Specify your Device Codename'
+        description: 's5e8535-common'
         required: true
         default: 'nashc'
       BUILD_TARGET:
-        description: 'Specify your Build Target'
+        description: 'recovery'
         required: true
         default: 'recovery'
         type: choice
