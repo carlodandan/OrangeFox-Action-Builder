@@ -26,15 +26,15 @@ on:
         required: true
         default: 'android-12.1'
       DEVICE_PATH:
-        description: 'Specify your Device Path'
+        description: 'device/samsung/m14x'
         required: true
         default: 'device/realme/nashc'
       DEVICE_NAME:
-        description: 'Specify your Device Codename'
+        description: 'm14x'
         required: true
         default: 'nashc'
       BUILD_TARGET:
-        description: 'Specify your Build Target'
+        description: 'recovery'
         required: true
         default: 'recovery'
         type: choice
