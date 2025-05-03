@@ -15,28 +15,28 @@ on:
         default: '12.1'
         type: choice
         options:
-        - 12.1
-        - 11.0
+        - Android_12.1
+        - Android_11.0
       DEVICE_TREE:
-        description: 'OrangeFox Device Tree'
+        description: 'Xiaomi_Pad_5 Tree'
         required: true
-        default: 'https://github.com/cd-Crypton/custom_recovery_tree_realme_nashc'
+        default: 'https://github.com/OrangeFoxRecovery/device_xiaomi_nabu'
       DEVICE_TREE_BRANCH:
-        description: 'OrangeFox Device Tree Branch'
+        description: 'Device Tree Branch'
         required: true
-        default: 'android-12.1'
+        default: 'fox_12.1'
       DEVICE_PATH:
-        description: 'Specify your Device Path'
+        description: 'vendor/device'
         required: true
-        default: 'device/realme/nashc'
+        default: 'device/xiaomi/nabu'
       DEVICE_NAME:
-        description: 'Specify your Device Codename'
+        description: '21051182G'
         required: true
-        default: 'nashc'
+        default: 'nabu'
       BUILD_TARGET:
-        description: 'Specify your Build Target'
+        description: 'boot'
         required: true
-        default: 'recovery'
+        default: 'boot'
         type: choice
         options:
         - boot
@@ -45,7 +45,7 @@ on:
 
 jobs:
   build:
-    name: Build OFR by ${{ github.actor }}
+    name: Build OrangeFox for nabu
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
